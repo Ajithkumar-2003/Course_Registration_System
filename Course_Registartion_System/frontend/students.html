@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Enrolled Students - Course System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .back-btn {
+            background: #95a5a6;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #34495e;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #7f8c8d;
+        }
+        .empty-message {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+        .count-badge {
+            background: #3498db;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-btn">← Back to Home</a>
+        <h1>👥 Enrolled Students 
+            <span class="count-badge" id="studentCount">0</span>
+        </h1>
+
+        <div id="loading" class="loading">Loading enrolled students...</div>
+        
+        <table id="studentsTable" style="display: none;">
+            <thead>
+                <tr>
+                    <th>Student Name</th>
+                    <th>Email Address</th>
+                    <th>Course Name</th>
+                </tr>
+            </thead>
+            <tbody id="studentsList">
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Load and display enrolled students
+        async function loadStudents() {
+            try {
+                const response = await fetch('http://localhost:8080/courses/enrolled');
+                const students = await response.json();
+                
+                const studentsList = document.getElementById('studentsList');
+                const loadingDiv = document.getElementById('loading');
+                const table = document.getElementById('studentsTable');
+                const countBadge = document.getElementById('studentCount');
+                
+                // Update count badge
+                countBadge.textContent = students.length;
+                
+                if (students.length === 0) {
+                    studentsList.innerHTML = `
+                        <tr>
+                            <td colspan="3" class="empty-message">
+                                No students enrolled yet<br>
+                                <small>Go to "Enroll Student" to add students</small>
+                            </td>
+                        </tr>
+                    `;
+                } else {
+                    studentsList.innerHTML = '';
+                    students.forEach(student => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${student.name}</td>
+                            <td>${student.emailId}</td>
+                            <td>${student.courseName}</td>
+                        `;
+                        studentsList.appendChild(row);
+                    });
+                }
+                
+                loadingDiv.style.display = 'none';
+                table.style.display = 'table';
+            } catch (error) {
+                document.getElementById('loading').innerHTML = `
+                    <div style="color: #e74c3c; text-align: center;">
+                        Error loading students. Please check if backend is running.
+                    </div>
+                `;
+            }
+        }
+
+        // Load students when page opens
+        loadStudents();
+    </script>
+</body>
+</html>

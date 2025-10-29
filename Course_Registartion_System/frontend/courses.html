@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Available Courses - Course System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .back-btn {
+            background: #95a5a6;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #34495e;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #7f8c8d;
+        }
+        .empty-message {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-btn">← Back to Home</a>
+        <h1>📚 Available Courses</h1>
+
+        <div id="loading" class="loading">Loading courses...</div>
+        
+        <table id="coursesTable" style="display: none;">
+            <thead>
+                <tr>
+                    <th>Course ID</th>
+                    <th>Course Name</th>
+                    <th>Trainer</th>
+                    <th>Duration</th>
+                </tr>
+            </thead>
+            <tbody id="coursesList">
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Load and display courses
+        async function loadCourses() {
+            try {
+                const response = await fetch('http://localhost:8080/courses');
+                const courses = await response.json();
+                
+                const coursesList = document.getElementById('coursesList');
+                const loadingDiv = document.getElementById('loading');
+                const table = document.getElementById('coursesTable');
+                
+                if (courses.length === 0) {
+                    coursesList.innerHTML = `
+                        <tr>
+                            <td colspan="4" class="empty-message">
+                                No courses available yet
+                            </td>
+                        </tr>
+                    `;
+                } else {
+                    coursesList.innerHTML = '';
+                    courses.forEach(course => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${course.courseId}</td>
+                            <td><strong>${course.courseName}</strong></td>
+                            <td>${course.trainer}</td>
+                            <td>${course.durationInWeeks} weeks</td>
+                        `;
+                        coursesList.appendChild(row);
+                    });
+                }
+                
+                loadingDiv.style.display = 'none';
+                table.style.display = 'table';
+            } catch (error) {
+                document.getElementById('loading').innerHTML = `
+                    <div style="color: #e74c3c; text-align: center;">
+                        Error loading courses. Please check if backend is running.
+                    </div>
+                `;
+            }
+        }
+
+        // Load courses when page opens
+        loadCourses();
+    </script>
+</body>
+</html>
